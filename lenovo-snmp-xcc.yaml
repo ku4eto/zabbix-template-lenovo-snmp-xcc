@@ -36,12 +36,46 @@ zabbix_export:
           valuemap:
             name: currentSysPowerStatus
         - uuid: 96f8b1c175ef46ceb4e6ff67b5e86280
-          name: 'Fan Total Installed'
+          name: 'Fan Table Row Count (XCC-reported bays)'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.19046.11.1.1.3.1.0
           key: fan.total
           history: 2d
           trends: 5d
+          description: |
+            LENOVO-XCC-MIB::fanNumber
+            "The present number of rows in the fan table." This is NOT the number
+            of physically installed fans - the XCC reports one row per fan BAY the
+            chassis supports, even if a bay is empty (that row's fanHealthStatus
+            will read "Unknown" and fanSpeed "offline"). See "Fans Physically
+            Installed" for the actual installed count.
+        - uuid: fe169e19a7a24a35bfdee639030956a1
+          name: 'Fans Physically Installed'
+          type: CALCULATED
+          key: fan.installed.count
+          params: 'count(/Lenovo XCC SNMPv3/fanhealth[*],#1,"ne","Unknown")'
+          delay: 1m
+          history: 2d
+          trends: 30d
+          value_type: UNSIGNED
+          description: |
+            Counts fan bays whose LENOVO-XCC-MIB::fanHealthStatus is anything
+            other than "Unknown". On this hardware an empty bay reports
+            "Unknown"/fanSpeed "offline", so this reflects fans actually seated
+            (Normal, Warning, or Critical all count as installed) rather than the
+            raw row count from "Fan Table Row Count".
+          triggers:
+            - uuid: 1b6d4bfe036b44ee918e61013c653f2e
+              expression: 'last(/Lenovo XCC SNMPv3/fan.installed.count)<{$FAN_MIN_COUNT}'
+              name: 'Fewer fans installed than expected ({ITEM.LASTVALUE})'
+              priority: WARNING
+              description: |
+                Fewer fan bays report a non-"Unknown" health status than
+                {$FAN_MIN_COUNT} (the expected count for this system). This can
+                mean a fan was physically removed, or its tach sensor stopped
+                reporting entirely. Override {$FAN_MIN_COUNT} at the host level
+                if this server's fan population differs from the default.
+              manual_close: 'YES'
         - uuid: cb1d5e9f271e4fca9eae3e0f1ed5e0d7
           name: 'Current System PowerStatus'
           type: SNMP_AGENT
@@ -252,9 +286,15 @@ zabbix_export:
                   value: health
               trigger_prototypes:
                 - uuid: 71fa15912c30459f8f2e1aaedd687484
-                  expression: 'find(/Lenovo XCC SNMPv3/fanhealth[{#FANINDEX}],,,"Normal")=0'
+                  expression: 'find(/Lenovo XCC SNMPv3/fanhealth[{#FANINDEX}],,,"Normal")=0 and find(/Lenovo XCC SNMPv3/fanhealth[{#FANINDEX}],,,"Unknown")=0'
                   name: 'Fan {#FANINDEX} Health'
                   priority: WARNING
+                  description: |
+                    Fires only when the fan reports a genuine non-Normal status
+                    (e.g. Warning/Critical). "Unknown" is excluded because on this
+                    hardware an empty/unpopulated fan bay reports "Unknown" rather
+                    than a fault - see "Fans Physically Installed" for tracking
+                    actual fan population instead.
                   manual_close: 'YES'
             - uuid: d4d558c7ed154ef0bf901d0667591265
               name: 'Fan {#FANINDEX} Speed in percentage'
@@ -1156,6 +1196,8 @@ zabbix_export:
       macros:
         - macro: '{$DISK_OK_STATUS}'
           value: Normal
+        - macro: '{$FAN_MIN_COUNT}'
+          value: '3'
         - macro: '{$FAN_OK_STATUS}'
           value: Normal
         - macro: '{$HEALTH_CRIT_STATUS}'
