@@ -6,8 +6,10 @@ No idea what the original template source is.
 
 ---
 
-Changes are based on what is included in the Lenovo [MIB files](https://datacentersupport.lenovo.com/gb/en/products/servers/thinksystem/sr550/7x04/solutions/ht511161). The MIB files are one and same for *ALL* Lenovo servers, so it does not matter for which you download them.
+Changes are based on what is included in the Lenovo [MIB files](https://datacentersupport.lenovo.com/gb/en/products/servers/thinksystem/sr550/7x04/solutions/ht511161). The MIB files seem to be the same across different Lenovo server models, so it does not matter for which you download them.
 Storages and NAS are probably different.
+
+100% compatible with Lenovo SR550, unknown for others. Feel free to test.
 
 ---
 
@@ -20,6 +22,7 @@ Storages and NAS are probably different.
 - PSU discover: now also pulls data for the part number and serial number.
 - Network card discovery: now also pulls MAC address and port maximum speed.
 - CPU discovery: now also pulls CPU clockspeed and thread count.
+- Fan discovery: now discovers properly all installed fans, even if not all slots are populated.
 
 ## Fixes:
 - Fixed issue with the Disk discovery, having wrong starting index.

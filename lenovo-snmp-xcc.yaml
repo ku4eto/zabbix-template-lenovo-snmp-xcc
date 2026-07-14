@@ -230,27 +230,27 @@ zabbix_export:
           triggers:
             - uuid: b173b62d0d4e4699ae832147ae36da2c
               expression: 'count(/Lenovo XCC SNMPv3/system.health.overall,#1,"eq",2)=1'
-              name: 'Overall system health is CRITICAL'
+              name: 'Overall system health is in CRITICAL state'
               priority: HIGH
               description: 'The XCC reports the overall system health as critical. Check the Health Summary discovered items for the specific reason(s).'
               manual_close: 'YES'
+            - uuid: 7dff2550d3ac4ac1909e3b498adc669a
+              expression: 'count(/Lenovo XCC SNMPv3/system.health.overall,#1,"eq",0)=1'
+              name: 'Overall system health is in NON-RECOVERABLE state'
+              priority: DISASTER
+              description: 'The XCC reports a non-recoverable hardware error. The system may not be functioning.'
+              manual_close: 'YES'
             - uuid: 88a533a31a4e4957a5a37216d562591c
               expression: 'count(/Lenovo XCC SNMPv3/system.health.overall,#1,"eq",4)=1'
-              name: 'Overall system health is non-critical (warning)'
+              name: 'Overall system health is in WARNING state'
               priority: WARNING
               description: 'The XCC reports a condition that may affect the system in the future but it is currently working properly.'
               manual_close: 'YES'
               dependencies:
-                - name: 'Overall system health is CRITICAL'
+                - name: 'Overall system health is in CRITICAL state'
                   expression: 'count(/Lenovo XCC SNMPv3/system.health.overall,#1,"eq",2)=1'
-                - name: 'Overall system health is NON-RECOVERABLE'
+                - name: 'Overall system health is in NON-RECOVERABLE state'
                   expression: 'count(/Lenovo XCC SNMPv3/system.health.overall,#1,"eq",0)=1'
-            - uuid: 7dff2550d3ac4ac1909e3b498adc669a
-              expression: 'count(/Lenovo XCC SNMPv3/system.health.overall,#1,"eq",0)=1'
-              name: 'Overall system health is NON-RECOVERABLE'
-              priority: DISASTER
-              description: 'The XCC reports a non-recoverable hardware error. The system may not be functioning.'
-              manual_close: 'YES'
         - uuid: 32b09c0aa022465ba5d5355fbbf6830c
           name: 'Restart Count'
           type: SNMP_AGENT
@@ -413,16 +413,16 @@ zabbix_export:
           trigger_prototypes:
             - uuid: 505223dbd620462d8a77968b02e447ea
               expression: 'find(/Lenovo XCC SNMPv3/healthsummary.severity[systemHealthSummarySeverity.{#SNMPINDEX}],,"like","Warning")=1 and length(last(/Lenovo XCC SNMPv3/healthsummary.description[systemHealthSummaryDescription.{#SNMPINDEX}]))>=0'
-              name: '{#SNMPINDEX}: Health summary reports a warning - {ITEM.LASTVALUE2}'
+              name: 'Health summary reports a warning - {ITEM.LASTVALUE2}'
               priority: WARNING
               description: 'See the paired "Health summary description" item ({ITEM.LASTVALUE2}) for details.'
               manual_close: 'YES'
               dependencies:
-                - name: '{#SNMPINDEX}: Health summary reports CRITICAL - {ITEM.LASTVALUE2}'
+                - name: 'Health summary reports CRITICAL - {ITEM.LASTVALUE2}'
                   expression: 'find(/Lenovo XCC SNMPv3/healthsummary.severity[systemHealthSummarySeverity.{#SNMPINDEX}],,"like","Critical")=1 and length(last(/Lenovo XCC SNMPv3/healthsummary.description[systemHealthSummaryDescription.{#SNMPINDEX}]))>=0'
             - uuid: 5ce6ff1361c94d18b6ca5eb4bf41205e
               expression: 'find(/Lenovo XCC SNMPv3/healthsummary.severity[systemHealthSummarySeverity.{#SNMPINDEX}],,"like","Critical")=1 and length(last(/Lenovo XCC SNMPv3/healthsummary.description[systemHealthSummaryDescription.{#SNMPINDEX}]))>=0'
-              name: '{#SNMPINDEX}: Health summary reports CRITICAL - {ITEM.LASTVALUE2}'
+              name: 'Health summary reports CRITICAL - {ITEM.LASTVALUE2}'
               priority: HIGH
               description: 'See the paired "Health summary description" item ({ITEM.LASTVALUE2}) for details.'
               manual_close: 'YES'
@@ -659,7 +659,7 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: b2badf0287984d518f247796a6ace445
                   expression: 'count(/Lenovo XCC SNMPv3/system.hw.physicaldisk.status[diskHealthStatus.{#SNMPINDEX}],#1,"ne","{$DISK_OK_STATUS}")=1'
-                  name: '{#SNMPINDEX}: Physical disk is not in OK state'
+                  name: 'Physical disk #{#SNMPINDEX} is not in OK state'
                   priority: WARNING
                   description: |
                     Last value: {ITEM.LASTVALUE1}.
@@ -776,7 +776,7 @@ zabbix_export:
                 - uuid: a784bdeb29614d33aeaf82d79ba2ac47
                   expression: 'count(/Lenovo XCC SNMPv3/sensor.psu.status[powerHealthStatus.{#SNMPINDEX}],#1,"ne","{$PSU_OK_STATUS}")=1'
                   name: '{#PSU_DESCR}: Power supply is not in normal state'
-                  priority: INFO
+                  priority: HIGH
                   description: |
                     Last value: {ITEM.LASTVALUE1}.
                     Please check the power supply unit for errors
@@ -970,7 +970,7 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: 1094bea2566c4bedb30e8f9c2816dad5
                   expression: 'count(/Lenovo XCC SNMPv3/system.hw.raiddrive.status[raidDriveHealthStataus.{#SNMPINDEX}],#1,"ne","{$DISK_OK_STATUS}")=1'
-                  name: '{#SNMPINDEX}: RAID drive is not in OK state'
+                  name: 'RAID drive #{#SNMPINDEX} is not in OK state'
                   priority: WARNING
                   description: |
                     Last value: {ITEM.LASTVALUE1}.
@@ -1092,7 +1092,7 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: 2b04e2d0c0df4616a35df8584ff69e61
                   expression: 'count(/Lenovo XCC SNMPv3/raidvolume.status[raidVolumeStatus.{#SNMPINDEX}],#1,"ne","{$RAID_VOLUME_OK_STATUS}")=1'
-                  name: '{#RAIDVOLNAME}: RAID volume is not in OK state'
+                  name: 'RAID volume #{#RAIDVOLNAME} is not in OK state'
                   priority: HIGH
                   description: |
                     Last value: {ITEM.LASTVALUE1}.
