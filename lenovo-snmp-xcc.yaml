@@ -22,7 +22,7 @@ zabbix_export:
         on Lenovo XCC and must not share a single discovery rule's LLD macro.
       vendor:
         name: 'https://github.com/ku4eto/zabbix-template-lenovo-snmp-xcc'
-        version: 1.0
+        version: '1.1'
       groups:
         - name: 'Templates/Servers Hardware'
       items:
