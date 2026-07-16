@@ -10,19 +10,10 @@ zabbix_export:
       description: |
         Zabbix template for Lenovo server monitoring via SNMP v3.
         
-        GitHub: https://github.com/ku4eto/zabbix-template-lenovo-snmp-xcc
-        
-        It required Linux by SNMP template before importing this template.
-        
-        Modified: split "Physical Disk Discovery" (LENOVO-XCC-MIB::diskTable, 0-based index,
-        health status only - diskFruName is just a generic "Drive N" label, not real VPD data)
-        from a new "RAID Drive Discovery" rule (LENOVO-XCC-MIB::raidDriveTable, 1-based index,
-        used for real part number / serial / capacity / media type / remaining life on drives
-        behind a RAID controller). These two tables use independent, non-aligned index spaces
-        on Lenovo XCC and must not share a single discovery rule's LLD macro.
+        Requires "Linux by SNMP" template.
       vendor:
         name: 'https://github.com/ku4eto/zabbix-template-lenovo-snmp-xcc'
-        version: '1.2'
+        version: '2.0'
       groups:
         - name: 'Templates/Servers Hardware'
       items:
@@ -278,10 +269,8 @@ zabbix_export:
               trends: '0'
               description: 'A description of the fan component status.'
               tags:
-                - tag: hardware
+                - tag: component
                   value: fan
-                - tag: hardware
-                  value: health
               trigger_prototypes:
                 - uuid: 71fa15912c30459f8f2e1aaedd687484
                   expression: 'find(/Lenovo XCC SNMPv3/fanhealth[{#FANINDEX}],,,"Normal")=0 and find(/Lenovo XCC SNMPv3/fanhealth[{#FANINDEX}],,,"Unknown")=0'
@@ -314,7 +303,7 @@ zabbix_export:
               master_item:
                 key: 'fanhealth[{#FANINDEX}]'
               tags:
-                - tag: hardware
+                - tag: component
                   value: fan
             - uuid: d4d558c7ed154ef0bf901d0667591265
               name: 'Fan {#FANINDEX} Speed in percentage'
@@ -326,7 +315,7 @@ zabbix_export:
               trends: '0'
               description: 'Fan  speed expressed in percent(%) of maximum RPM. An octet string expressed as ''ddd% of maximum'' where: d is a decimal digit or blank space for a leading zero. If the fan is determined not to be running or the fan speed cannot be determined, the string will indicate ''Offline''.'
               tags:
-                - tag: hardware
+                - tag: component
                   value: fan
             - uuid: f222488596af4f86bb241c916c7c362b
               name: 'Fan {#FANINDEX} Description'
@@ -337,7 +326,7 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: hardware
+                - tag: component
                   value: fan
         - uuid: 0110f8bba9dd4ed382326a2bbce101a2
           name: 'Firmware Discovery'
@@ -357,8 +346,8 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: Application
-                  value: Firmware
+                - tag: component
+                  value: system
             - uuid: 7b8bea07b1ae47bd9fd275cedd94a2dd
               name: 'Version: {#FIRMTYPE}'
               type: SNMP_AGENT
@@ -368,8 +357,8 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: Application
-                  value: Firmware
+                - tag: component
+                  value: system
               trigger_prototypes:
                 - uuid: 6d3b9d0c1a8b4e2f9c6e2b1a7f4d5c8e
                   expression: 'last(/Lenovo XCC SNMPv3/version[{#FIRMINDEX}],#1)<>last(/Lenovo XCC SNMPv3/version[{#FIRMINDEX}],#2)'
@@ -403,8 +392,10 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::systemHealthSummaryDescription'
               tags:
-                - tag: Application
-                  value: 'Health Summary'
+                - tag: component
+                  value: health
+                - tag: component
+                  value: system
             - uuid: 9bf812340c7e4f3498201b662f4c4b8f
               name: '{#SNMPINDEX}: Health summary severity'
               type: SNMP_AGENT
@@ -415,8 +406,10 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::systemHealthSummarySeverity'
               tags:
-                - tag: Application
-                  value: 'Health Summary'
+                - tag: component
+                  value: health
+                - tag: component
+                  value: system
           trigger_prototypes:
             - uuid: 505223dbd620462d8a77968b02e447ea
               expression: 'find(/Lenovo XCC SNMPv3/healthsummary.severity[systemHealthSummarySeverity.{#SNMPINDEX}],,"like","Warning")=1 and length(last(/Lenovo XCC SNMPv3/healthsummary.description[systemHealthSummaryDescription.{#SNMPINDEX}]))>=0'
@@ -450,6 +443,9 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
             - uuid: 8816bdbd845f4d2ebd336ea61918374a
               name: 'LED State: {#LEDLABEL}'
               type: SNMP_AGENT
@@ -459,6 +455,9 @@ zabbix_export:
               trends: 5d
               valuemap:
                 name: ledstate
+              tags:
+                - tag: component
+                  value: hardware
         - uuid: bf3327737d6845d6b40061fe667330c2
           name: 'Memory module Discovery'
           type: SNMP_AGENT
@@ -479,7 +478,9 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::memoryVpdType'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: memory
             - uuid: f7e30266c79041bca2f2a2979146fd71
               name: '{#MEMDISC} ({#MEMTYPE}) PartNumber'
@@ -490,7 +491,9 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: memory
             - uuid: 1719a9156e9b4393931774545ac2c171
               name: '{#MEMDISC} ({#MEMTYPE}) Rated Speed(MHz)'
@@ -503,7 +506,9 @@ zabbix_export:
               units: '!MHz'
               description: 'LENOVO-XCC-MIB::memoryRatedSpeed'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: memory
             - uuid: b5089d94c83e4a21a594fc106ffcf136
               name: '{#MEMDISC} ({#MEMTYPE}) Serial'
@@ -514,7 +519,9 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: memory
             - uuid: ed004f1dd8584171843d763cd54ad4db
               name: '{#MEMDISC} ({#MEMTYPE}) Size(GB)'
@@ -525,7 +532,9 @@ zabbix_export:
               trends: 5d
               units: '!GB'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: memory
             - uuid: 49f837e86c4c49e697fe58de16426ad2
               name: '{#MEMDISC} ({#MEMTYPE}) Speed(MHz)'
@@ -536,7 +545,9 @@ zabbix_export:
               trends: 5d
               units: '!MHz'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: memory
             - uuid: a7864055468d4baf93ed5f6eab65ec38
               name: '{#MEMDISC} ({#MEMTYPE}) Status'
@@ -547,7 +558,9 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: memory
               trigger_prototypes:
                 - uuid: dd5e936e770b4dd39a45374c031a7161
@@ -580,7 +593,7 @@ zabbix_export:
                 PCIe/OCP slot designation). This is NOT a health/operational status;
                 do not alarm on this value.
               tags:
-                - tag: type
+                - tag: component
                   value: network
             - uuid: 8c34cd0f2aaa4ef2ab039f6dcde9e5bb
               name: 'Network Adapter Link speed: {#NETNAME}'
@@ -597,10 +610,8 @@ zabbix_export:
                 "NONSUPPORT" here (and 0Gbps) rather than a real speed - this is
                 a hardware/firmware limitation, not a polling error.
               tags:
-                - tag: type
+                - tag: component
                   value: network
-                - tag: type
-                  value: status
             - uuid: f50c8381245e412eb824d96ce4348a5f
               name: 'Network Adapter Link status: {#NETNAME}'
               type: SNMP_AGENT
@@ -616,10 +627,8 @@ zabbix_export:
                 "NONSUPPORT" here rather than Up/Down - this is a hardware/firmware
                 limitation, not a polling error.
               tags:
-                - tag: type
+                - tag: component
                   value: network
-                - tag: type
-                  value: status
               trigger_prototypes:
                 - uuid: 74ccdd28f23747f9853cf22dd5a345ed
                   expression: 'find(/Lenovo XCC SNMPv3/adapterlinkstatus[{#NETINDEX}],,"like","NONSUPPORT")=0 and find(/Lenovo XCC SNMPv3/adapterlinkstatus[{#NETINDEX}],,"like","Up")=0'
@@ -643,7 +652,7 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::adapterNetworkPortNetworkAddress'
               tags:
-                - tag: type
+                - tag: component
                   value: network
             - uuid: 7f3c981fbb7747c7bb6b277f09c2b7e4
               name: 'Network Adapter Max Speed: {#NETNAME}'
@@ -661,7 +670,7 @@ zabbix_export:
                     - '([0-9.]+)'
                     - \1
               tags:
-                - tag: type
+                - tag: component
                   value: network
           trigger_prototypes:
             - uuid: 1c9b2e4f7a3d4c5e8f1a6b2d9c7e4f10
@@ -701,8 +710,10 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 A description of the disk module status.
               tags:
-                - tag: Application
-                  value: 'Physical Disks'
+                - tag: component
+                  value: disk
+                - tag: component
+                  value: hardware
               trigger_prototypes:
                 - uuid: b2badf0287984d518f247796a6ace445
                   expression: 'count(/Lenovo XCC SNMPv3/system.hw.physicaldisk.status[diskHealthStatus.{#SNMPINDEX}],#1,"ne","{$DISK_OK_STATUS}")=1'
@@ -713,7 +724,7 @@ zabbix_export:
                     Please check physical disk for warnings or errors
                   manual_close: 'YES'
         - uuid: 1b927fceba8d4bbeab9b5438c2a8a4a8
-          name: 'Processor Discovery'
+          name: 'CPU Discovery'
           type: SNMP_AGENT
           snmp_oid: 'discovery[{#CPUINDEX},1.3.6.1.4.1.19046.11.1.1.5.20.1.1,{#CPUMODEL},1.3.6.1.4.1.19046.11.1.1.5.20.1.12]'
           key: processor.discovery
@@ -730,8 +741,10 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: hardware
-                  value: processor
+                - tag: component
+                  value: cpu
+                - tag: component
+                  value: hardware
             - uuid: d3c5e6ff40c3408c985946ee0d5a1d79
               name: 'CPU:{#CPUINDEX} {#CPUMODEL} Speed(MHz)'
               type: SNMP_AGENT
@@ -743,8 +756,10 @@ zabbix_export:
               units: '!MHz'
               description: 'LENOVO-XCC-MIB::cpuVpdSpeed'
               tags:
-                - tag: hardware
-                  value: processor
+                - tag: component
+                  value: cpu
+                - tag: component
+                  value: hardware
             - uuid: a2bda2996f984766b25c718529692def
               name: 'CPU:{#CPUINDEX} {#CPUMODEL}'
               type: SNMP_AGENT
@@ -754,8 +769,10 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               tags:
-                - tag: hardware
-                  value: processor
+                - tag: component
+                  value: cpu
+                - tag: component
+                  value: hardware
             - uuid: fa051fdd29554742b1a8212d26402b6a
               name: 'CPU:{#CPUINDEX} {#CPUMODEL} Threads'
               type: SNMP_AGENT
@@ -766,8 +783,10 @@ zabbix_export:
               trends: 30d
               description: 'LENOVO-XCC-MIB::cpuVpdThreads'
               tags:
-                - tag: hardware
-                  value: processor
+                - tag: component
+                  value: cpu
+                - tag: component
+                  value: hardware
         - uuid: 2f248e19f10346a2825e108ee0918bc0
           name: 'PSU Discovery'
           type: SNMP_AGENT
@@ -789,8 +808,10 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::powerPartNumber'
               tags:
-                - tag: Application
-                  value: 'Power Supply'
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: psu
             - uuid: 453709cf6f444367940e0e85143bdb35
               name: '{#PSU_DESCR}: Serial number'
               type: SNMP_AGENT
@@ -802,8 +823,10 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::powerFRUSerialNumber'
               tags:
-                - tag: Application
-                  value: 'Power Supply'
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: psu
             - uuid: d5b151ff652b4015a798611d25386fc2
               name: '{#PSU_DESCR}: Power supply status'
               type: SNMP_AGENT
@@ -817,8 +840,10 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 A description of the power module status.
               tags:
-                - tag: Application
-                  value: 'Power Supply'
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: psu
               trigger_prototypes:
                 - uuid: a784bdeb29614d33aeaf82d79ba2ac47
                   expression: 'count(/Lenovo XCC SNMPv3/sensor.psu.status[powerHealthStatus.{#SNMPINDEX}],#1,"ne","{$PSU_OK_STATUS}")=1'
@@ -851,6 +876,13 @@ zabbix_export:
                 No default trigger is defined since the exact vocabulary of values
                 can vary by controller/firmware; review reported values and add a
                 trigger with {$RAID_BATTERY_OK_STATUS} once known for your hardware.
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
             - uuid: a42584c7cb4c44719ab2cdc99b7f95ac
               name: 'RAID controller battery backup - {#SNMPINDEX}'
               type: SNMP_AGENT
@@ -860,6 +892,13 @@ zabbix_export:
               trends: 5d
               valuemap:
                 name: 'raid ctrl batbck'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
             - uuid: 0f0229505b714d34839e935b15aa1901
               name: 'RAID controller name - {#SNMPINDEX}'
               type: SNMP_AGENT
@@ -868,6 +907,13 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
             - uuid: d6fa73c627174f92b3d1c57c22a1ee20
               name: 'RAID controller version - {#SNMPINDEX}'
               type: SNMP_AGENT
@@ -876,6 +922,13 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
             - uuid: a782f3f5184d491a8018b3a9e4f94e53
               name: 'RAID controller Model - {#SNMPINDEX}'
               type: SNMP_AGENT
@@ -884,6 +937,13 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
             - uuid: e2647b4f3ff34e2aa6c9c520a89be2e6
               name: 'RAID controller Part Number - {#SNMPINDEX}'
               type: SNMP_AGENT
@@ -892,6 +952,13 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
             - uuid: bc325159f8c345249c97542c9de9c887
               name: 'RAID controller Serial Number - {#SNMPINDEX}'
               type: SNMP_AGENT
@@ -900,6 +967,13 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
             - uuid: 60c270b2bcbe4ec2aacf3720d9bf6282
               name: 'RAID controller FRU - {#SNMPINDEX}'
               type: SNMP_AGENT
@@ -908,6 +982,13 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: system
         - uuid: f5fa9e3859404680b36017e66972de7b
           name: 'RAID Drive Discovery'
           type: SNMP_AGENT
@@ -937,8 +1018,12 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 RAID drive capacity.
               tags:
-                - tag: Application
-                  value: 'Physical Disks'
+                - tag: component
+                  value: disk
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
             - uuid: 6c92e285d78b46dcbbf0f68ed5a750f1
               name: '{#SNMPINDEX}: RAID drive media type'
               type: SNMP_AGENT
@@ -952,8 +1037,12 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 RAID drive media type (e.g. HDD/SSD).
               tags:
-                - tag: Application
-                  value: 'Physical Disks'
+                - tag: component
+                  value: disk
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
             - uuid: 2df50535019e4859bf4e0108a6037785
               name: '{#SNMPINDEX}: RAID drive part number'
               type: SNMP_AGENT
@@ -967,8 +1056,12 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 RAID drive VPD part number.
               tags:
-                - tag: Application
-                  value: 'Physical Disks'
+                - tag: component
+                  value: disk
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
             - uuid: c40d7134c06442d48e72aea9a6b68e05
               name: '{#SNMPINDEX}: RAID drive remaining life'
               type: SNMP_AGENT
@@ -982,8 +1075,12 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 RAID drive remaining life (primarily meaningful for SSDs).
               tags:
-                - tag: Application
-                  value: 'Physical Disks'
+                - tag: component
+                  value: disk
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
             - uuid: bbbb2fa0fa304815b0d111dade4b4052
               name: '{#SNMPINDEX}: RAID drive serial number'
               type: SNMP_AGENT
@@ -997,8 +1094,12 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 RAID drive VPD serial number.
               tags:
-                - tag: Application
-                  value: 'Physical Disks'
+                - tag: component
+                  value: disk
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
             - uuid: 8db1a05160604ed0821509f1e74f9a0f
               name: '{#SNMPINDEX}: RAID drive health status'
               type: SNMP_AGENT
@@ -1012,8 +1113,12 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 A description of the RAID drive health status.
               tags:
-                - tag: Application
-                  value: 'Physical Disks'
+                - tag: component
+                  value: disk
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: raid
               trigger_prototypes:
                 - uuid: 1094bea2566c4bedb30e8f9c2816dad5
                   expression: 'count(/Lenovo XCC SNMPv3/system.hw.raiddrive.status[raidDriveHealthStataus.{#SNMPINDEX}],#1,"ne","{$DISK_OK_STATUS}")=1'
@@ -1040,6 +1145,11 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: storage
             - uuid: 55340e00945047aca67659b2c9c202da
               name: 'Storage Pool Controller {#SNMPINDEX} Name'
               type: SNMP_AGENT
@@ -1050,7 +1160,9 @@ zabbix_export:
               trends: '0'
               description: 'The name of a particular RAID storagepool.'
               tags:
-                - tag: hardware
+                - tag: component
+                  value: hardware
+                - tag: component
                   value: storage
             - uuid: 6259b48493da47eaa54f8691edaa1f89
               name: 'Storage Pool {#SNMPINDEX} Drives'
@@ -1061,6 +1173,11 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               description: 'The physical drives list of a particular RAID storagepool.'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: storage
             - uuid: 423e90da7ce446cbae1af2e457e3cb84
               name: 'Storage Pool {#SNMPINDEX} Stat'
               type: SNMP_AGENT
@@ -1069,6 +1186,11 @@ zabbix_export:
               history: 2d
               value_type: TEXT
               trends: '0'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: storage
             - uuid: f1bbe901c2e540d1ad049c86375265cf
               name: 'Storage Pool {#SNMPINDEX} VolumeList'
               type: SNMP_AGENT
@@ -1078,6 +1200,11 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               description: 'The volumes list of a particular RAID storagepool.'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: storage
             - uuid: 00f4b532f0dd4d078a333170d1c98028
               name: 'Storage Pool {#SNMPINDEX} Name'
               type: SNMP_AGENT
@@ -1087,6 +1214,11 @@ zabbix_export:
               value_type: TEXT
               trends: '0'
               description: 'The name of a particular RAID storagepool.'
+              tags:
+                - tag: component
+                  value: hardware
+                - tag: component
+                  value: storage
         - uuid: 100dd1d9231c4c6a9dfbd2201d484f39
           name: 'RAID Volume Discovery'
           type: SNMP_AGENT
@@ -1108,8 +1240,10 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::raidVolumeBootable'
               tags:
-                - tag: Application
-                  value: 'RAID Volumes'
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: storage
             - uuid: 7d4f4a6c5d5b48fcb7a70e5926a5a4d4
               name: '{#RAIDVOLNAME}: RAID volume capacity'
               type: SNMP_AGENT
@@ -1121,8 +1255,10 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::raidVolumeCapacity'
               tags:
-                - tag: Application
-                  value: 'RAID Volumes'
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: storage
             - uuid: 3f84a303199048c780f4d5909d4ede2b
               name: '{#RAIDVOLNAME}: RAID volume status'
               type: SNMP_AGENT
@@ -1134,8 +1270,10 @@ zabbix_export:
               trends: '0'
               description: 'LENOVO-XCC-MIB::raidVolumeStatus'
               tags:
-                - tag: Application
-                  value: 'RAID Volumes'
+                - tag: component
+                  value: raid
+                - tag: component
+                  value: storage
               trigger_prototypes:
                 - uuid: 2b04e2d0c0df4616a35df8584ff69e61
                   expression: 'count(/Lenovo XCC SNMPv3/raidvolume.status[raidVolumeStatus.{#SNMPINDEX}],#1,"ne","{$RAID_VOLUME_OK_STATUS}")=1'
@@ -1175,8 +1313,8 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 The measured temperature.
               tags:
-                - tag: Application
-                  value: Temperature
+                - tag: component
+                  value: temperature
               trigger_prototypes:
                 - uuid: 0a47aac3fc3b413f9c8fbc5ac09acab2
                   expression: 'avg(/Lenovo XCC SNMPv3/sensor.temp.value[{#SNMPINDEX}],5m)>{$TEMP_CRIT:"{#SNMPVALUE}"}'
@@ -1230,8 +1368,8 @@ zabbix_export:
                 LENOVO-XCC-MIB
                 A description of the voltage component status.
               tags:
-                - tag: Application
-                  value: Voltage
+                - tag: component
+                  value: voltage
               trigger_prototypes:
                 - uuid: ac793d10c4324bc0837ed78eaec74d92
                   expression: 'find(/Lenovo XCC SNMPv3/voltage.status[{#SNMPINDEX}],#2,"like","Normal")=0'
@@ -1259,8 +1397,13 @@ zabbix_export:
                   parameters:
                     - '.*"'
               tags:
-                - tag: Application
-                  value: Voltage
+                - tag: component
+                  value: voltage
+      tags:
+        - tag: class
+          value: hardware
+        - tag: target
+          value: lenovo
       macros:
         - macro: '{$DISK_OK_STATUS}'
           value: Normal
