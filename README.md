@@ -23,6 +23,7 @@ Storages and NAS are probably different.
 - Network card discovery: now also pulls MAC address and port maximum speed.
 - CPU discovery: now also pulls CPU clockspeed and thread count.
 - Fan discovery: now discovers properly all installed fans, even if not all slots are populated.
+- Properly tagged components
 
 ## Fixes:
 - Fixed issue with the Disk discovery, having wrong starting index.
@@ -73,10 +74,7 @@ Ethernet: Intel X722 LOM
 
 ## Known issues:
 - Network card discovery -> Item Prototype for `Network Adapter Link speed` is outputting 0Gbps. Needs to be debugged and fixed.
-- Network card discovery -> no trigger prototypes for `Link status` and `Link speed` changes. Needs to have triggers added.
 - Network card discovery -> Item prototype for `Network Adapter: {#NETNAME}` uses `adapterstatus` key. Needs to be thought out what we may need here.
-- Network card discovery -> Item prototype for `Network Adapter Max Speed: {#NETNAME}` has `Trends` for 30d. Seems useless, since maximum port speed should not change.
-- Network card discovery -> Item prototypes `Network Adapter: {#NETNAME}, Network Adapter Link speed: {#NETNAME},Network Adapter Link status: {#NETNAME}` have no `Trends`. Needs to be 30d.
 
 
 ---
