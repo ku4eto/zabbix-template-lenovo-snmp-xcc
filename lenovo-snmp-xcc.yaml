@@ -13,7 +13,7 @@ zabbix_export:
         Requires "Linux by SNMP" template.
       vendor:
         name: 'https://github.com/ku4eto/zabbix-template-lenovo-snmp-xcc'
-        version: '2.0'
+        version: '2.1'
       groups:
         - name: 'Templates/Servers Hardware'
       items:
@@ -26,6 +26,9 @@ zabbix_export:
           trends: 5d
           valuemap:
             name: currentSysPowerStatus
+          tags:
+            - tag: component
+              value: power
         - uuid: fe169e19a7a24a35bfdee639030956a1
           name: 'Fans Physically Installed'
           type: CALCULATED
@@ -39,6 +42,9 @@ zabbix_export:
             On this hardware an empty bay reports fanHealthStatus "Unknown", so
             each per-fan flag is 0 there and 1 for Normal/Warning/Critical (i.e.
             physically present regardless of health).
+          tags:
+            - tag: component
+              value: hardware
           triggers:
             - uuid: 1b6d4bfe036b44ee918e61013c653f2e
               expression: 'last(/Lenovo XCC SNMPv3/fan.installed.count)<{$FAN_MIN_COUNT}'
@@ -65,6 +71,9 @@ zabbix_export:
             chassis supports, even if a bay is empty (that row's fanHealthStatus
             will read "Unknown" and fanSpeed "offline"). See "Fans Physically
             Installed" for the actual installed count.
+          tags:
+            - tag: component
+              value: hardware
         - uuid: cb1d5e9f271e4fca9eae3e0f1ed5e0d7
           name: 'Current System PowerStatus'
           type: SNMP_AGENT
@@ -75,6 +84,9 @@ zabbix_export:
           trends: 5d
           valuemap:
             name: 'IMM-MIB::systemHealthStat'
+          tags:
+            - tag: component
+              value: power
         - uuid: b1d30d1931a44a6d9baf45792d19715d
           name: 'System State'
           type: SNMP_AGENT
@@ -85,6 +97,11 @@ zabbix_export:
           trends: 5d
           valuemap:
             name: systemState
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: system
         - uuid: 882191ec797a4c0da8db242a5120cb35
           name: 'Machine Model'
           type: SNMP_AGENT
@@ -95,8 +112,10 @@ zabbix_export:
           value_type: TEXT
           trends: '0'
           tags:
-            - tag: Application
+            - tag: component
               value: hardware
+            - tag: component
+              value: system
         - uuid: e65f9b45f79c424182111c6532a9f792
           name: 'Machine Name'
           type: SNMP_AGENT
@@ -107,8 +126,10 @@ zabbix_export:
           value_type: TEXT
           trends: '0'
           tags:
-            - tag: Application
+            - tag: component
               value: hardware
+            - tag: component
+              value: system
         - uuid: 8ea7d8ba65294108b6ac794ca2d370b5
           name: 'Machine Serial Number'
           type: SNMP_AGENT
@@ -119,8 +140,10 @@ zabbix_export:
           value_type: TEXT
           trends: '0'
           tags:
-            - tag: Application
+            - tag: component
               value: hardware
+            - tag: component
+              value: system
         - uuid: 2a166c480a8044619342c3fe0f499ee6
           name: 'Machine Type'
           type: SNMP_AGENT
@@ -131,8 +154,10 @@ zabbix_export:
           value_type: TEXT
           trends: '0'
           tags:
-            - tag: Application
+            - tag: component
               value: hardware
+            - tag: component
+              value: system
         - uuid: 06fdaea651c341beac5dcf7bba3ee15d
           name: 'Total power available'
           type: SNMP_AGENT
@@ -144,6 +169,9 @@ zabbix_export:
           description: |
             LENOVO-XCC-MIB::fuelGaugeTotalPowerAvailable
             Calculated total remaining power available. Rack system only.
+          tags:
+            - tag: component
+              value: power
         - uuid: 9b4744eaa29b4ac6b6274ef0796afe09
           name: 'CPU power consumption'
           type: SNMP_AGENT
@@ -153,6 +181,9 @@ zabbix_export:
           history: 7d
           units: W
           description: 'LENOVO-XCC-MIB::fuelGaugePowerConsumptionCpu'
+          tags:
+            - tag: component
+              value: power
         - uuid: 93de8e612515441e9beab6b06f03efd5
           name: 'Memory power consumption'
           type: SNMP_AGENT
@@ -162,6 +193,9 @@ zabbix_export:
           history: 7d
           units: W
           description: 'LENOVO-XCC-MIB::fuelGaugePowerConsumptionMemory'
+          tags:
+            - tag: component
+              value: power
         - uuid: 95c5aca17fa940ffa1fc09155d2e798b
           name: 'Total power in use'
           type: SNMP_AGENT
@@ -170,6 +204,9 @@ zabbix_export:
           delay: 120s
           history: 7d
           units: W
+          tags:
+            - tag: component
+              value: power
         - uuid: 030a29b2e3ce45cdb14d565f13dcbecc
           name: 'Power On Hours'
           type: SNMP_AGENT
@@ -178,6 +215,9 @@ zabbix_export:
           history: 2d
           trends: 5d
           units: uptime
+          tags:
+            - tag: component
+              value: power
         - uuid: 3214bd7f52304db9b94b84aded713326
           name: 'RAID ODBC Capable'
           type: SNMP_AGENT
@@ -188,6 +228,9 @@ zabbix_export:
           description: 'If raidOOBCapable is disabled, all the RAID information is not available.'
           valuemap:
             name: raidoobcapable
+          tags:
+            - tag: component
+              value: hardware
         - uuid: a6c62ffc8426473aa97e4e5a99d8e43d
           name: Trap
           type: SNMP_TRAP
@@ -198,8 +241,8 @@ zabbix_export:
           trends: '0'
           logtimefmt: 'hh:mm:ss yyyy/MM/dd'
           tags:
-            - tag: Application
-              value: Status
+            - tag: component
+              value: network
         - uuid: f7077bca9ec042e488fbdc49fd4ae1fd
           name: 'Overall System Health Status'
           type: SNMP_AGENT
@@ -216,8 +259,10 @@ zabbix_export:
           valuemap:
             name: 'IMM-MIB::systemHealthStat'
           tags:
-            - tag: Application
-              value: hardware
+            - tag: component
+              value: health
+            - tag: component
+              value: system
           triggers:
             - uuid: b173b62d0d4e4699ae832147ae36da2c
               expression: 'count(/Lenovo XCC SNMPv3/system.health.overall,#1,"eq",2)=1'
@@ -249,6 +294,9 @@ zabbix_export:
           key: XCCrestartCount
           history: 2d
           trends: 5d
+          tags:
+            - tag: component
+              value: power
       discovery_rules:
         - uuid: 30f0d0edd5c140e4ab45946b5c5f21d3
           name: 'Fan Discovery'
