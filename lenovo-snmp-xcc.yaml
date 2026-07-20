@@ -1325,7 +1325,7 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: 2b04e2d0c0df4616a35df8584ff69e61
                   expression: 'count(/Lenovo XCC SNMPv3/raidvolume.status[raidVolumeStatus.{#SNMPINDEX}],#1,"ne","{$RAID_VOLUME_OK_STATUS}")=1'
-                  name: 'RAID volume #{#RAIDVOLNAME} is not in OK state'
+                  name: 'RAID volume {#RAIDVOLNAME} is not in OK state'
                   priority: HIGH
                   description: |
                     Last value: {ITEM.LASTVALUE1}.
